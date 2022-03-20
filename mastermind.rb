@@ -8,6 +8,7 @@ class Mastermind
     @continue_game = true
     @hint_given = false
     @mode_choice
+    @guess_number = 1
   end
 
   def comp_create_code
@@ -17,11 +18,34 @@ class Mastermind
     #p @code
   end
 
-  def hard_code(a, b, c, d)
-    @code[0] = a
-    @code[1] = b
-    @code[2] = c
-    @code[3] = d
+  def comp_guess
+    for i in 0..@guess.length-1 do
+      @guess[i] = rand(1..6)
+    end
+    puts "Computer guess number: #{@guess_number}"
+    p @guess
+    if @guess == @code
+      puts "Computer wins!"
+      exit(true)
+    end
+    @guess_number += 1
+  end
+
+  def hard_code(input)
+    @input_accepted = false
+    if input.length == 4
+      @code = input.chars
+      for i in 0..3 do
+        @code[i] = @code[i].to_i
+        #don't want guesses containing anything other than 1-6
+        if @code[i] > 6 || @code[i] < 1
+           puts "invalid secret code, try again"
+          return
+        end
+      end
+      @input_accepted = true
+      p @code
+    end
   end
 
     
@@ -84,7 +108,7 @@ class Mastermind
       @mode_choice = gets.chomp
     end
     if @mode_choice == "1"
-      hard_code(1, 2, 3, 4)
+      comp_create_code()
       while @continue_game
         puts "\nTurn number: #{@turn_counter + 1}"
         puts "Enter next guess:"
@@ -95,8 +119,19 @@ class Mastermind
         end
       end
     elsif @mode_choice == "2"
-      #code creator mode goes here
-      
+      while(!@input_accepted)
+        puts "Enter a very secret code:"
+        hard_code(gets.chomp)
+      end
+      while @continue_game
+        comp_guess()
+        sleep 2
+        @turn_counter += 1
+        if @turn_counter == 12
+          puts "Computer failed to guess, you win!"
+          @continue_game = false
+        end
+      end
       #return
     end
     
